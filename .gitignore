@@ -1,0 +1,48 @@
+# ===== Python =====
+__pycache__/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+pip-wheel-metadata/
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# ===== Testing / tooling =====
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# ===== IDEs / editors =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== OS junk =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+*.log
+
+# ===== Misc =====
+*.tmp
+*.bak

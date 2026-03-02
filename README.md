@@ -28,5 +28,5 @@ Key words: #Reinforcement_learning, #Deep_reinforcement_learning, #Market_making
 ```
 
 # Reproductibility and compatibility
-The technology stack used for the present project is not the most crip and new, even can be regarded as ancient. The reason for that is partlly my personal preference, partly - plethora of answers to my questions already present in the Stackoveflow. 
+The tech stack used for the present project is not the most crisp one, even can be regarded as ancient. The reason for that is partly my personal preference, partly - the plethora of answers to my questions already present in the Stackoveflow. 
 

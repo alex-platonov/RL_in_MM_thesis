@@ -85,31 +85,33 @@ def setup_ddqn_agent(env, info, gpu=-1):
     obs_size = env.observation_space.low.size
     hidden_size = info["hidden_size"]
 
-    # ADVANCED
-    q_func = th.nn.Sequential(
-        th.nn.Linear(obs_size, hidden_size).double(),
-        th.nn.ReLU(),
-        th.nn.Linear(hidden_size, hidden_size).double(),
-        th.nn.BatchNorm1d(hidden_size).double(),
-        th.nn.ReLU(),
-        th.nn.Linear(hidden_size, hidden_size).double(),
-        th.nn.ReLU(),
-        th.nn.Linear(hidden_size, hidden_size).double(),
-        th.nn.BatchNorm1d(hidden_size).double(),
-        th.nn.ReLU(),
-        th.nn.Linear(hidden_size, env.action_space.n).double(),
-        pfrl.q_functions.DiscreteActionValueHead(),
-    )
-
-    # STANDARD
-    # q_func = th.nn.Sequential(
-    #     th.nn.Linear(obs_size, hidden_size).double(),
-    #     th.nn.ReLU(),
-    #     th.nn.Linear(hidden_size, hidden_size).double(),
-    #     th.nn.ReLU(),
-    #     th.nn.Linear(hidden_size, env.action_space.n).double(),
-    #     pfrl.q_functions.DiscreteActionValueHead(),
-    # )
+    architecture = info.get("network_architecture", "advanced")
+    if architecture == "standard":
+        q_func = th.nn.Sequential(
+            th.nn.Linear(obs_size, hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, env.action_space.n).double(),
+            pfrl.q_functions.DiscreteActionValueHead(),
+        )
+    elif architecture == "advanced":
+        q_func = th.nn.Sequential(
+            th.nn.Linear(obs_size, hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, hidden_size).double(),
+            th.nn.BatchNorm1d(hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, hidden_size).double(),
+            th.nn.BatchNorm1d(hidden_size).double(),
+            th.nn.ReLU(),
+            th.nn.Linear(hidden_size, env.action_space.n).double(),
+            pfrl.q_functions.DiscreteActionValueHead(),
+        )
+    else:
+        raise ValueError("network_architecture must be 'standard' or 'advanced'")
 
     # Use epsilon-greedy for exploration
     explorer = explorers.LinearDecayEpsilonGreedy(

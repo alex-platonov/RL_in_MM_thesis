@@ -182,7 +182,7 @@ class LOB:
         Returns
         -------
         float
-            Order imbalance in the interval [0, 1].
+            Order imbalance in the interval [-1, 1].
 
         """
         if depth is None:
@@ -473,7 +473,8 @@ def vwap_mid(x):
 
     Returns
     -------
-    x : int or float    
+    x : int or float
+    
     Volume-weighted average mid price.
 
     """
@@ -500,7 +501,8 @@ k
 
     Returns
     -------
-  x : int    
+  x : int
+    
     Total bid-side volume.me
 
     """
@@ -513,7 +515,8 @@ def sell_volume(x, depth):
 
     Parameters
     ----------
- x : nnp.array    
+ x : nnp.array
+    
     Volumes at each level of the order book.    
 depth : in    t
     Number of levels from (and including) the best ask to include    .
@@ -527,18 +530,20 @@ int
     return np.sum(x[ask(x) : ask(x) + 1 + depth])
 
 
-def realized_vol(prices, seq_length=-1    Compute realized volatility for each price sequence.    
-    
-Parameter    s
---------    --
-pricesp.mpy ar    ray
-    Price observations of shape (n, m), with n sequences each containing m observati    ons.
-seq_length     : int
-    Length of each subsequence used for volatility estimation. If -1, each full sequence is treated as a single w    i    ndow.
-    
-Returns    p---
-n    umpy array
-    Array of shape (n,) containing realized volatilities for each sequence.ch sequence
+def realized_vol(prices, seq_length=-1):
+    """
+    Compute realized volatility for each sequence of prices
+
+    Parameters
+    ----------
+    prices : numpy array
+        prices (mid/ask/bid/other) of shape (n,m) with n sequences each of m observations
+    seq_length : int
+        how long each subsequence should be, if -1 then each sequence considered as one
+
+    Returns
+    -------
+    numpy array of shape (n,) of realized volatilities for each sequence
 
     """
     if seq_length != -1:
@@ -550,23 +555,21 @@ n    umpy array
 
     return np.std(np.diff(prices, axis=-1), axis=-1)
 
+def order_imbalance(x, depth=None):
+    """
+    Compute order imbalance for levels up to a specified depth from best bid/ask
+    such that high order imbalance means more volume available on bid side (more volume wanting to buy).
 
-def order_imbalance(x    
-Compute order imbalance across levels up to a specified depth from the best bid/ask.    
-A higher imbalance indicates relatively more volume on the bid side (i.e., more buy-side interest)    .    
+    Parameters
+    ----------
+    x : numpy array
+        volumes of each level of the order book
+    depth : int
+        specifies how many levels from (and including) best bid and best ask to consider
 
-Paramet    ers
-------    ----p.numpy     array
-    Volumes at each level of the order     book.
-depth : int     or None
-    Number of levels from (and including) the best bid and best ask to include. If None, a default depth     i    s used.    
-
-Retur    ns
---    -----
-float
-    Order imbalance in the int [0, 1].
-"""
-nd 1 of order imbalance
+    Returns
+    -------
+    float between -1 and 1 of order imbalance
 
     """
     if not depth:
@@ -575,23 +578,22 @@ nd 1 of order imbalance
     vol_sell = sell_volume(x, depth)
     return (vol_buy - vol_sell) / (vol_buy + vol_sell)
 
+def price_signature(p, p0, sizes=None):
+    """
+    Compute price signature for prices p given reference price p0.
 
-def price    Compute the price signature for prices p given a reference price p0.    
-    
-Parameter    s
---------    --
-p : numpy array of shape (m, n,     d)
-    Array of price series, where n is the number of price series per sequence type, m is the number of sequence ty    pes,
-    and d is the number of price observations per se    ries.
-p0 : numpy array of shape     (m, n)
-    Reference price for each price     series.
-sizes : numpy array of shap    e (m, n)
-    Order sizes used to normalise the s    i    gnature.    
+    Parameters
+    ----------
+    p : numpy array of shape (m,n,d)
+        here n is the number of price series for each type of sequence and m is the number of types of such sequences
+        d is the number of prices for each price series
+    p0 : numpy array of shape (m,n)
+        reference price for each price series
+    sizes : numpy array of (m,n)
+        sizes of the orders to normalize the signature by
 
-Retu    rns
--------
-s : numpy array of     shape (m, d)
-    Price signature.---
+    Returns
+    -------
     s : numpy array of shape (m, d)
 
     """
@@ -609,28 +611,27 @@ s : numpy array of     shape (m, d)
     return s
 
 
-def get_volumes(ob, num_le    Compute a volume feature vector from an order book state.
-    
-    The feature vector is defined as:
-    x = (p_ask^1, v_ask^1, p_bid^1, v_bid^1, ..., p_ask^n, v_ask^n, p_bid^n, v_bid^n),
-    where p_ask^i is the price of the i-th best ask level (and analogously for bids), and v_ask^i is the corresponding
-    volume (and analogously for bids).
-    
+def get_volumes(ob, num_levels=10, relative=True, negative_bids=False):
+    """
+    Compute volume feature vector from ob
+    x = (p_ask^1, v_ask^1, p_bid^1, v_bid^1, ...., p_ask^n, v_ask^n, p_bid^n, v_bid^n)
+    with p_ask^i being the price level of i:th best ask price (same for bid)
+    and v_ask^i the volume of the i:th best ask price (same for bid)
+
     Parameters
     ----------
-    ob : np.array
-        Order book state.
+    ob : numpy array
+        state of the order book
     num_levels : int
-        Number of levels per side included in the feature vector.
+        number of levels to consider in feature vector for buy/sell side
     relative : bool
-        Flag indicating whether all prices are expressed relative to the best ask price.
+        whether to have all price levels relative to the first ask price or not
     negative_bids : bool
-        Flag indicating whether bid-side volumes are returned as negative values.
-    
+        whether the volumes should be negative on the bid size
+
     Returns
     -------
-    x : np.array
-        Feature vector of length 4 * num_levels.rray of length 4 * num_levels with extracted features
+    x : numpy array of length 4 * num_levels with extracted features
 
     """
 

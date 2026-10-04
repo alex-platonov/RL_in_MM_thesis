@@ -54,9 +54,9 @@ def evaluate_Q_matrix(
     rewards : list
         List of simulated episode rewards.
     opt_action : tuple
-        Optimal action at state (0,0).
+        Greedy action at the initial encoded environment state.
     Q_star : float
-        State-value at (0,0).
+        Greedy action-value at that initial encoded state.
     Qs : np.array
         Array of inventory values.
     Xs : np.array
@@ -71,6 +71,7 @@ def evaluate_Q_matrix(
         )
 
     env = MonteCarloEnv(**args, debug=False)
+    start_state = env.state()
 
     Qs = np.zeros((int(n), int(env.T / env.dt)))
     Xs = np.zeros((int(n), int(env.T / env.dt)))
@@ -101,7 +102,7 @@ def evaluate_Q_matrix(
 
         rewards.append(disc_reward)
 
-    start_state = (0, 1)
+    # start_state was captured before the first environment transition.
 
     opt_action = np.unravel_index(Q_tab[start_state].argmax(), Q_tab[start_state].shape)
     Q_star = Q_tab[start_state][opt_action]
@@ -114,8 +115,8 @@ def evaluate_Q_matrix(
 
 def evaluate_constant_strategy(args_environment, n=1000, c=1):
     """
-    Simulate n episodes and return the reward distribution obtained under the constant strategy, quoting at c ticks from the mid price.
-
+    Simulate n episodes under a constant requested depth of c ticks from each opposite best quote, subject to the environment's no-crossing adjustment.
+    
     Parameters
     ----------
     args_environment : dict
@@ -123,7 +124,7 @@ def evaluate_constant_strategy(args_environment, n=1000, c=1):
     n : int
         Number of episodes to simulate.
     c : int
-        Quote distance in ticks from the mid price.
+        Requested positive depth in ticks from each opposite best quote.
 
     Returns
     -------
@@ -140,7 +141,7 @@ def evaluate_constant_strategy(args_environment, n=1000, c=1):
         disc_reward = 0
 
         while env.t < env.T:
-            action = tuple_action_to_dict((c, c, 0))
+            action = tuple_action_to_dict((c - 1, c - 1, 0))
 
             _, action_reward = env.step(action)  # Get the new state and the reward
 
@@ -530,11 +531,11 @@ def plot_rewards_multiple(
         Q_zero_mean,
         linewidth=0.2,
         color="purple",
-        label="mean Q[(0,0)]-value",
+        label="mean logged value estimate",
     )
     ax2.set_xlabel("episode")
-    ax2.set_ylabel("Q[(0,0)]")
-    ax2.set_title("average Q[(0,0)] during training")
+    ax2.set_ylabel("logged greedy value")
+    ax2.set_title("average logged value estimate during training")
 
     ax1.legend()
     ax2.legend()

@@ -52,7 +52,7 @@ def tabular_Q_learning(
     rewards : list
         List with all episode rewards recorded during training.
     Q_zero_average : list
-        List with average state-values at (0,0).
+        List with average greedy values at each episode's initial encoded state.
     x_values : list
         List with episode indices used for plotting.
     """
@@ -88,6 +88,7 @@ def tabular_Q_learning(
 
         # Reset the environment
         env.reset()
+        initial_state = env.state()
         episode_reward = 0
 
         while env.t < env.T:  # As long as the episode isn't over
@@ -124,7 +125,7 @@ def tabular_Q_learning(
         reward_grouped.append(episode_reward)
 
         # Save the best Q-value
-        Q_zero_grouped.append(np.max(Q_tab[(0, 1)]))
+       Q_zero_grouped.append(np.max(Q_tab[initial_state]))
 
         # Printing every 20% of total episodes
         if (episode + 1) % (0.20 * n) == 0:

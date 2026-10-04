@@ -125,7 +125,7 @@ def tabular_Q_learning(
         reward_grouped.append(episode_reward)
 
         # Save the best Q-value
-       Q_zero_grouped.append(np.max(Q_tab[initial_state]))
+        Q_zero_grouped.append(np.max(Q_tab[initial_state]))
 
         # Printing every 20% of total episodes
         if (episode + 1) % (0.20 * n) == 0:
